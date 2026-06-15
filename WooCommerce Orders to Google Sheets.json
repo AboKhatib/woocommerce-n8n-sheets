@@ -1,0 +1,180 @@
+{
+  "name": "WooCommerce Orders to Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "woocommerce-order",
+        "options": {}
+      },
+      "id": "6eb5f901-3d21-4a19-b961-ba07c0e0f00c",
+      "name": "WooCommerce Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        96
+      ],
+      "webhookId": "a1b2c3d4-0001-4000-8000-000000000099"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "value2": "processing"
+            }
+          ]
+        }
+      },
+      "id": "88fb9a00-ed82-4ec3-a8e0-1f45698e9115",
+      "name": "IF Status Is Processing",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_DOCUMENT_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "YOUR_SHEET_NAME_OR_GID",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Order ID": "={{ $('WooCommerce Webhook').item.json.id }}",
+            "Status": "={{ $('WooCommerce Webhook').item.json.status }}",
+            "Name": "={{ $('WooCommerce Webhook').item.json.billing.first_name }}",
+            "Email": "={{ $('WooCommerce Webhook').item.json.billing.email }}",
+            "Phone": "={{ $('WooCommerce Webhook').item.json.billing.phone }}",
+            "Item": "={{ $('WooCommerce Webhook').item.json.line_items.map(i => i.name).join(', ') }}",
+            "Total": "={{ $('WooCommerce Webhook').item.json.total }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Order ID",
+              "displayName": "Order ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "Item",
+              "displayName": "Item",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string"
+            },
+            {
+              "id": "Total",
+              "displayName": "Total",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9b846f9b-86fd-4698-8acb-ca96b93f06a3",
+      "name": "Append to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        64,
+        -64
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WooCommerce Webhook": {
+      "main": [
+        [
+          {
+            "node": "IF Status Is Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Status Is Processing": {
+      "main": [
+        [
+          {
+            "node": "Append to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7fd20333-8e8a-47aa-afaf-1f41ef8aa0e9",
+  "meta": {
+    "instanceId": "efd415071fe092aad7a8c0acff2a357e45f78f52113adf315b174159b64b90b1"
+  },
+  "nodeGroups": [],
+  "id": "yQyp5MufS7y9BdNo",
+  "tags": []
+}
